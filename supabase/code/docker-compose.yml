@@ -4,6 +4,12 @@ services:
 
   studio:
     image: supabase/studio:2025.05.19-sha-3487831
+        environment:
+      - RLIMIT_NOFILE=65536
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     restart: unless-stopped
     healthcheck:
       test:

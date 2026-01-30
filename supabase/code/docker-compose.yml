@@ -1,41 +1,31 @@
-name: supabase
-
 services:
 
   studio:
     image: supabase/studio:2025.05.19-sha-3487831
-        environment:
-      - RLIMIT_NOFILE=65536
+    restart: unless-stopped
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
-    restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://studio:3000/api/platform/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})"
-        ]
+      test: >
+        CMD node -e "fetch('http://studio:3000/api/platform/profile')
+        .then((r) => { if (r.status !== 200) throw new Error(r.status) })"
       timeout: 10s
       interval: 5s
       retries: 3
     environment:
+      RLIMIT_NOFILE: "65536"
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
       DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-
       SUPABASE_URL: http://kong:8000
       SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       AUTH_JWT_SECRET: ${JWT_SECRET}
-
       NEXT_PUBLIC_ENABLE_LOGS: false
 
   kong:
@@ -54,7 +44,9 @@ services:
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
-    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
+    entrypoint: >
+      bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml &&
+      /docker-entrypoint.sh kong docker-start'
 
   auth:
     image: supabase/gotrue:v2.172.1
@@ -71,24 +63,19 @@ services:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
       API_EXTERNAL_URL: ${API_EXTERNAL_URL}
-
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-
+      GOTRUE_DB_DATABASE_URL: "postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       GOTRUE_SITE_URL: ${SITE_URL}
       GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
       GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
-
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
       GOTRUE_JWT_EXP: ${JWT_EXPIRY}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
-
       GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
       GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: ${ENABLE_ANONYMOUS_USERS}
       GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
-
       GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
       GOTRUE_SMTP_HOST: ${SMTP_HOST}
       GOTRUE_SMTP_PORT: ${SMTP_PORT}
@@ -103,7 +90,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_URI: "postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -143,7 +130,7 @@ services:
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
       POSTGREST_URL: http://rest:3000
       PGRST_JWT_SECRET: ${JWT_SECRET}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      DATABASE_URL: "postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
@@ -183,7 +170,7 @@ services:
       SUPABASE_URL: http://kong:8000
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
-      SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      SUPABASE_DB_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
     command: ["start", "--main-service", "/home/deno/functions/main"]
 

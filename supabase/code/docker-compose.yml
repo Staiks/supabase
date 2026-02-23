@@ -188,7 +188,7 @@ services:
       - ./volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
       - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
-      - supabase-db-data:/var/lib/postgresql/data
+      - supabase-db-fresh-2026:/var/lib/postgresql/data
       - ./volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
       - db-config:/etc/postgresql-custom
     environment:
@@ -204,4 +204,4 @@ services:
 
 volumes:
   db-config:
-  supabase-db-data:
+  supabase-db-fresh-2026:

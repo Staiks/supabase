@@ -108,6 +108,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      RLIMIT_NOFILE: "10000"
       PORT: 4000
       DB_HOST: ${POSTGRES_HOST}
       DB_PORT: ${POSTGRES_PORT}
@@ -179,7 +180,7 @@ services:
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
     command: ["start", "--main-service", "/home/deno/functions/main"]
 
- db:
+  db:
     image: supabase/postgres:15.8.1.060
     restart: unless-stopped
     volumes:

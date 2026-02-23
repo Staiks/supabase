@@ -108,6 +108,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      APP_NAME: realtime
       RLIMIT_NOFILE: "10000"
       PORT: 4000
       DB_HOST: ${POSTGRES_HOST}

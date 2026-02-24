@@ -205,4 +205,4 @@ services:
 
 volumes:
   db-config:
-  supabase-db-fresh-2026:
+  supabase-db-fresh-2026v2:

@@ -202,6 +202,49 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXP: ${JWT_EXPIRY}
 
+  postgres-backup:
+    image: docker.io/nfrastack/db-backup:4.9.0
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TIMEZONE: Europe/Lisbon
+      MODE: AUTO
+      DEBUG_MODE: "FALSE"
+      BACKUP_JOB_CONCURRENCY: "1"
+
+      DB01_TYPE: postgres
+      DB01_HOST: ${POSTGRES_HOST}
+      DB01_PORT: ${POSTGRES_PORT}
+      DB01_NAME: ${POSTGRES_DB}
+      DB01_USER: postgres
+      DB01_PASS: ${POSTGRES_PASSWORD}
+      DB01_BACKUP_GLOBALS: "TRUE"
+
+      DB01_BACKUP_LOCATION: S3
+      DB01_S3_BUCKET: ${BACKUP_R2_BUCKET}
+      DB01_S3_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID}
+      DB01_S3_KEY_SECRET: ${BACKUP_R2_SECRET_ACCESS_KEY}
+      DB01_S3_PATH: fablelab/production/postgres/daily
+      DB01_S3_REGION: auto
+      DB01_S3_HOST: "${BACKUP_R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+      DB01_S3_PROTOCOL: https
+      DB01_S3_CERT_SKIP_VERIFY: "FALSE"
+
+      DB01_RESOURCE_OPTIMIZED: "TRUE"
+      DB01_COMPRESSION: ZSTD
+      DB01_COMPRESSION_LEVEL: "3"
+      DB01_ENABLE_PARALLEL_COMPRESSION: "FALSE"
+      DB01_PARALLEL_COMPRESSION_THREADS: "1"
+      DB01_CHECKSUM: SHA1
+      DB01_LOG_LEVEL: NOTICE
+
+      # Run the first backup one minute after the container starts. Replace with
+      # "30 3 * * *" after the first backup is confirmed in Cloudflare R2.
+      DB01_BACKUP_BEGIN: "+1"
+      DB01_CLEANUP_TIME: "FALSE"
+
 volumes:
   db-config:
   supabase-db-fablelab-fresh:

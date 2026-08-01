@@ -243,7 +243,6 @@ services:
       # Run the first backup one minute after the container starts. Replace with
       # "30 3 * * *" after the first backup is confirmed in Cloudflare R2.
       DB01_BACKUP_BEGIN: "+1"
-      DB01_CLEANUP_TIME: "FALSE"
 
 volumes:
   db-config:
